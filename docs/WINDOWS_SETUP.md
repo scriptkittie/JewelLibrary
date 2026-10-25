@@ -21,12 +21,8 @@ If the app won't start, double-click `setup-windows.bat` again (from the downloa
 `%LOCALAPPDATA%\SteamDeckJewels\platform\windows\manager.bat`). Its menu can check the installation,
 update from GitHub or a downloaded ZIP, and repair the Python environment and shortcuts.
 
-The launcher uses `pythonw.exe`, so no terminal stays open while the app runs. A terminal appears only
-when setup or repair reports progress or an error.
+No command window stays open while the app runs; one appears only while setup or repair is working.
 
 ## For developers
 
-- `run-windows.bat` runs the app straight from the repository (using the repository's `data\` folder),
-  in a resizable window.
-- `build-windows.bat` builds a standalone PyInstaller folder at `dist\SteamDeckJewels\`.
-- `fetch-covers.bat` and `resolve-covers.bat` run the batch cover tools.
+Building from source and running without installing are covered in [DEVELOPING.md](DEVELOPING.md).

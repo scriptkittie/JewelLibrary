@@ -44,5 +44,4 @@ bash ~/Applications/SteamDeckJewels/platform/steamos/manager.sh
 
 ## For developers
 
-- `bash run-linux.sh` runs the app straight from the repository (using its own `data/` folder).
-- `bash build-linux.sh` builds a standalone PyInstaller folder at `dist/SteamDeckJewels/`.
+Building from source and running without installing are covered in [DEVELOPING.md](DEVELOPING.md).

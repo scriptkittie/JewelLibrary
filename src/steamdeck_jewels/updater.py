@@ -22,7 +22,7 @@ from pathlib import Path
 
 # The GitHub repository releases are published to, as "owner/name".
 # SDJ_GITHUB_REPO in the environment overrides it.
-GITHUB_REPO = ""
+GITHUB_REPO = "scriptkittie/JewelLibrary"
 
 USER_AGENT = "SteamDeckJewels-Updater"
 STATUS_FILE = ".update-status.json"

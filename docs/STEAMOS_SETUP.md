@@ -56,5 +56,4 @@ that is a stale Konsole profile setting, not an installer error. To remove the w
 
 ## For developers
 
-- `bash run-steamos.sh` runs the app straight from the repository (using its own `data/` folder).
-- `bash build-steamos.sh` builds a standalone PyInstaller folder at `dist/SteamDeckJewels/`.
+Building from source and running without installing are covered in [DEVELOPING.md](DEVELOPING.md).

@@ -38,7 +38,7 @@ Run through this before tagging a release. Test with the packaged ZIPs
 ## Packaging
 
 - [ ] Bump the version in `src/steamdeck_jewels/__init__.py` and `pyproject.toml`.
-- [ ] Confirm neither ZIP contains `.secrets`, `data/*.json`, personal covers or `__pycache__`.
-- [ ] Push a `v<version>` tag; the Release workflow publishes both ZIPs.
+- [ ] Confirm no ZIP contains `.secrets`, `data/*.json`, personal covers or `__pycache__`.
+- [ ] Push a `v<version>` tag; the Release workflow publishes all three ZIPs.
 - [ ] On an older install, confirm the update prompt appears on launch and updating reopens the app with the
       "Update complete" message.
