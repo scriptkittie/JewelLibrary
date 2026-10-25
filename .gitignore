@@ -1,0 +1,34 @@
+# Local secrets (SteamGridDB API key)
+.secrets/
+*.key
+
+# Your personal library: created by the app on first run, never committed
+data/*.json
+assets/covers/*
+!assets/covers/_placeholder.svg
+
+# Generated cover reports
+reports/*.txt
+
+# Python environments and caches
+.venv/
+.build-venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Build and release outputs
+build/
+dist/
+release/
+*.zip
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/

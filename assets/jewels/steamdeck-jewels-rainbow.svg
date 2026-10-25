@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="pearl" x1="0.04" y1="0.08" x2="0.96" y2="0.92">
+      <stop offset="0" stop-color="#f8eafa"/>
+      <stop offset="0.19" stop-color="#e9d9f7"/>
+      <stop offset="0.39" stop-color="#d5f3f0"/>
+      <stop offset="0.58" stop-color="#f7e9d1"/>
+      <stop offset="0.78" stop-color="#cbdff4"/>
+      <stop offset="1" stop-color="#e4d2ef"/>
+    </linearGradient>
+    <radialGradient id="innerGlow" cx="0.34" cy="0.24" r="0.86">
+      <stop stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.28" stop-color="#f5dff0" stop-opacity="0.34"/>
+      <stop offset="0.57" stop-color="#bfece8" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#635779" stop-opacity="0.22"/>
+    </radialGradient>
+    <linearGradient id="facetRose" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffdfe8" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#e8d7ff" stop-opacity="0.16"/>
+    </linearGradient>
+    <linearGradient id="facetAqua" x1="0" y1="1" x2="1" y2="0">
+      <stop stop-color="#ccf4ee" stop-opacity="0.66"/>
+      <stop offset="1" stop-color="#d9e3ff" stop-opacity="0.12"/>
+    </linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="1.8"/>
+    </filter>
+  </defs>
+
+  <path d="M64 7 103 30 111 64 87 108 64 123 41 108 17 64 25 30Z"
+        fill="url(#pearl)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M25 30 64 7 43 31Z" fill="#fff" fill-opacity="0.54"/>
+  <path d="M25 30h78L64 65Z" fill="url(#innerGlow)"/>
+  <path d="M17 64 43 31 64 65 41 108Z" fill="url(#facetRose)"/>
+  <path d="M111 64 85 31 64 65 87 108Z" fill="url(#facetAqua)"/>
+  <path d="M41 108 64 65 87 108 64 123Z" fill="#bcdff2" fill-opacity="0.25"/>
+  <path d="M25 30h78L87 108 64 123 41 108 17 64Zm0 0 39 93 39-93M17 64h94M64 7 43 31l21 34 21-34Z"
+        fill="none" stroke="#fff" stroke-opacity="0.52" stroke-width="2.6" stroke-linejoin="round"/>
+
+  <g fill="#fff">
+    <path d="M31 19h3v8h8v3h-8v8h-3v-8h-8v-3h8Z" opacity="0.95"/>
+    <path d="M98 15h2v5h5v2h-5v5h-2v-5h-5v-2h5Z" opacity="0.88"/>
+    <path d="M103 75h2v4h4v2h-4v4h-2v-4h-4v-2h4Z" opacity="0.74"/>
+    <circle cx="22" cy="45" r="1.8" opacity="0.82"/>
+    <circle cx="91" cy="34" r="1.5" opacity="0.74"/>
+  </g>
+  <g fill="#fff" filter="url(#glow)" opacity="0.58">
+    <circle cx="32.5" cy="28.5" r="5"/>
+    <circle cx="99" cy="21" r="3.2"/>
+  </g>
+  <ellipse cx="47" cy="27" rx="9" ry="4.5" fill="#fff" fill-opacity="0.62" transform="rotate(-18 47 27)"/>
+</svg>
