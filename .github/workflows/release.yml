@@ -1,18 +1,29 @@
 name: Release
 
-# Push a tag such as v0.3.0 to publish a GitHub release with the Windows and SteamOS ZIPs.
+# Builds the Windows, SteamOS and Linux ZIPs and attaches them to the release.
+# Works whether the release is published on GitHub's website or a v* tag is pushed.
 on:
   push:
     tags: ["v*"]
+  release:
+    types: [published]
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.event.release.tag_name || github.ref_name }}
+
 jobs:
   package:
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -20,7 +31,10 @@ jobs:
         run: python -m compileall -q src tools
       - name: Build release ZIPs
         run: python tools/package_release.py
-      - name: Publish GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "SteamDeck Jewels $GITHUB_REF_NAME" --generate-notes
+      - name: Attach ZIPs to the release
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/*.zip --clobber
+          else
+            gh release create "$TAG" release/*.zip --title "SteamDeck Jewels $TAG" --generate-notes
+          fi

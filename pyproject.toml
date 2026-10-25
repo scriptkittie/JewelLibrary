@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "steamdeck-jewels"
-version = "0.3.0"
+version = "0.1.0"
 description = "Controller-friendly jewel-drive game library for SteamOS and Windows"
 readme = "README.md"
 requires-python = ">=3.10"
