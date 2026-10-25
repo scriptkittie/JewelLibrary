@@ -53,7 +53,3 @@ Results are written to `~/Applications/SteamDeckJewels/reports/`.
 If Konsole says it could not find a folder such as `/home/deck/desktop/deck` and starts `bash` instead,
 that is a stale Konsole profile setting, not an installer error. To remove the warning, open
 **Settings > Edit Current Profile > General** and set **Initial directory** to `/home/deck`.
-
-## For developers
-
-Building from source and running without installing are covered in [DEVELOPING.md](DEVELOPING.md).

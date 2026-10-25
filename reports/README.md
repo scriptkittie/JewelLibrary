@@ -1,9 +1,6 @@
 # Cover reports
 
-`tools/covers/fetch_covers.py` and `tools/covers/resolve_unresolved.py` write their results here after
-a fresh scan of every game:
+The bulk cover tools (`fetch-covers` and `resolve-covers`) write their results here:
 
-- `cover-review.txt` is the current summary.
-- `completed.txt` and `unresolved.txt` exist only while cover work remains.
-
-All report files are generated and ignored by Git.
+- `cover-review.txt` is the summary.
+- `completed.txt` and `unresolved.txt` list each game's status while covers are still missing.

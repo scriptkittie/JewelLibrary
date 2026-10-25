@@ -41,7 +41,3 @@ run the repair menu:
 ```bash
 bash ~/Applications/SteamDeckJewels/platform/steamos/manager.sh
 ```
-
-## For developers
-
-Building from source and running without installing are covered in [DEVELOPING.md](DEVELOPING.md).

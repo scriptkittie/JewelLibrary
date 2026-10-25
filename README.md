@@ -11,66 +11,66 @@ its card is in. Built for the Steam Deck, and it also runs on Windows and deskto
 
 - **One library for every card.** Games stay listed when their card is out, with the card's gem and
   status on each cover.
-- **Made for the Deck.** A fullscreen 1280×800 interface that works with touch, the controller and a
-  mouse. It also runs in a normal window on Windows and Linux.
+- **Made for the Deck.** A fullscreen interface that works with touch, the controller and a mouse. On
+  Windows and Linux it opens in a normal window.
 - **Cover art in a couple of clicks.** Search Steam and pick the right match from a list with
   thumbnails, or use a Steam AppID, a SteamGridDB link or your own 600×900 image. Change a cover any time
   from **Edit Game**.
-- **Find things fast.** Search plus gem filters. The filter row scrolls, so it handles any number of
-  cards.
+- **Find things fast.** Search plus gem filters, however many cards you have.
 - **NSFW protection.** Adult titles are hidden every time the app starts. The NSFW filter cycles
   **Hidden → Shown → Only**.
-- **Keeps itself up to date.** Every time it opens it checks for a new release and asks whether you want
-  to update. Your library is never touched by updates.
-- **Private by design.** Your games, covers, drive names and API key stay on your device.
+- **Keeps itself up to date.** Every time it opens it checks for a new version and asks whether you want
+  to update.
+- **Private.** Your games, covers, drive names and API key stay on your device.
 
 ## Download
 
 Get the ZIP for your system from the [**Releases**](../../releases/latest) page:
 
-| You have | Download | Then |
-|---|---|---|
-| Steam Deck (SteamOS) | `SteamDeckJewels-SteamOS-<version>.zip` | [SteamOS setup](#steam-deck--steamos) |
-| Windows 10/11 | `SteamDeckJewels-Windows-<version>.zip` | [Windows setup](#windows) |
-| Desktop Linux | `SteamDeckJewels-Linux-<version>.zip` | [Linux setup](#linux) |
+| You have | Download |
+|---|---|
+| Steam Deck (SteamOS) | `SteamDeckJewels-SteamOS-<version>.zip` |
+| Windows 10 or 11 | `SteamDeckJewels-Windows-<version>.zip` |
+| Desktop Linux (Ubuntu, Fedora, Arch, …) | `SteamDeckJewels-Linux-<version>.zip` |
 
-Each ZIP includes `START_HERE.txt` with the same steps.
+Each ZIP includes a `START_HERE.txt` with the same steps as below.
 
 ## Install
 
-Setup copies the app to a private folder, creates its own Python environment (it downloads PySide6, so
-it needs internet the first time) and adds a shortcut. You only do this once; after that the app updates
-itself.
+You only install once; after that the app updates itself. The first install needs an internet
+connection to download the components the app runs on.
 
 ### Steam Deck / SteamOS
 
 1. Switch to **Desktop Mode** and extract the SteamOS ZIP into `Downloads` (not onto the microSD card).
 2. Open the extracted folder in Dolphin, right-click inside it and choose **Open Terminal Here**.
-3. Run:
+3. Type this and press Enter:
 
    ```bash
    bash setup-steamos.sh
    ```
 
-4. Open **SteamDeck Jewels** from the Desktop or the application menu.
-5. For Gaming Mode, add `~/Applications/SteamDeckJewels/platform/steamos/run.sh` to Steam as a
-   **Non-Steam Game**. It opens fullscreen there.
+4. When it says **Setup complete**, open **SteamDeck Jewels** from the Desktop or the application menu.
+5. **To use it in Gaming Mode:** in Steam (Desktop Mode), choose **Games → Add a Non-Steam Game to My
+   Library → Browse**, and select `~/Applications/SteamDeckJewels/platform/steamos/run.sh`. It opens
+   fullscreen in Gaming Mode.
 
-More detail: [docs/STEAMOS_SETUP.md](docs/STEAMOS_SETUP.md)
+More detail: [Steam Deck setup guide](docs/STEAMOS_SETUP.md)
 
 ### Windows
 
-1. Install [Python 3.10 or newer](https://www.python.org/downloads/) with the **py launcher** option.
-2. Extract the Windows ZIP, then double-click `setup-windows.bat`.
+1. Install [Python 3.10 or newer](https://www.python.org/downloads/). In the installer, keep **py
+   launcher** ticked.
+2. Extract the Windows ZIP (right-click → **Extract All**), then double-click `setup-windows.bat` in the
+   extracted folder.
 3. Type `1` (**Install / Update**) and press Enter.
-4. Open **SteamDeck Jewels** from the new Desktop shortcut.
+4. When setup finishes, open **SteamDeck Jewels** from the new Desktop shortcut.
 
-The app installs to `%LOCALAPPDATA%\SteamDeckJewels`. More detail:
-[docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md)
+More detail: [Windows setup guide](docs/WINDOWS_SETUP.md)
 
 ### Linux
 
-1. Install Python and Qt's one extra library:
+1. Install Python and one library the app's interface needs:
    - Ubuntu / Debian / Mint: `sudo apt install python3 python3-venv libxcb-cursor0`
    - Fedora: `sudo dnf install python3 xcb-util-cursor`
    - Arch: `sudo pacman -S python xcb-util-cursor`
@@ -82,80 +82,73 @@ The app installs to `%LOCALAPPDATA%\SteamDeckJewels`. More detail:
 
 3. Open **SteamDeck Jewels** from your application menu or Desktop.
 
-The app installs to `~/Applications/SteamDeckJewels`. More detail: [docs/LINUX_SETUP.md](docs/LINUX_SETUP.md)
+More detail: [Linux setup guide](docs/LINUX_SETUP.md)
 
 ## Getting started
 
-1. **Manage ▾ → Add Jewel Drive**: enter the volume name of an SD card and pick a gem.
-2. **+ Add Game**: enter the game, choose its card, and pick a cover.
-3. Click a game to launch it. The first time, it asks for the game's `.exe` (or program) and remembers
-   it.
+1. **Manage ▾ → Add Jewel Drive:** enter the volume name of an SD card and pick a gem for it.
+2. **+ Add Game:** enter the game's name, choose its card and pick a cover.
+3. **Click a game to launch it.** The first time, it asks you to find the game's program file (the
+   `.exe` on Windows) and remembers it.
 
-Everything else lives in **Manage ▾** (Edit Game, Remove Game, Add Jewel Drive, Rescan Drives, Open SDJ
-Folder) or by right-clicking a game. Removing a game never deletes anything from the SD card. The
-[first-run guide](docs/FIRST_RUN_GUIDE.md) covers it all, including finding a Steam AppID.
+Everything else is in **Manage ▾** (Edit Game, Remove Game, Add Jewel Drive, Rescan Drives, Open SDJ
+Folder) or by right-clicking a game. Removing a game from the library never deletes anything from the SD
+card. The [first-run guide](docs/FIRST_RUN_GUIDE.md) walks through it all, including how to find a Steam
+AppID.
 
-### Tips
+### Good to know
 
-- **Covers** live in `assets/covers/<Jewel>/<Game>/` inside the app's folder (NSFW titles under
-  `<Jewel>/NSFW/<Game>/`). You can also drop an image in by hand. Replaced covers are moved to a
-  `_replaced` subfolder, not deleted.
-- **Portable launch paths:** a path starting with `{drive}` becomes the card's location when it's
-  connected (`E:\` on Windows, `/run/media/...` or `/media/...` on Linux), so the same entry works on every
-  machine:
-
-  ```json
-  "target": "{drive}Games/My Game/MyGame.exe"
-  ```
-
-- **SteamGridDB (optional):** adds covers Steam doesn't have. Add a free API key from **Help → Set Up
-  SteamGridDB API Key**. It's stored only on your device.
-- **Lots of covers at once:** `fetch-covers` does an automatic pass and `resolve-covers` walks you through
-  what's left (`.bat` on Windows, `platform/steamos/*.sh` on Linux and SteamOS).
+- **Cards can move around.** When you pick a game's program from a connected card, SteamDeck Jewels
+  remembers where it is *on the card*, so it keeps working if the card gets a different drive letter or
+  you use it on another device.
+- **Your own covers.** Besides the cover options in Add Game and Edit Game, you can drop an image into a
+  game's cover folder yourself: **Manage ▾ → Open SDJ Folder**, then `assets/covers/<card>/<game>/`.
+- **More cover sources (optional).** SteamGridDB has covers for games Steam doesn't. Add a free API key
+  from **Help → Set Up SteamGridDB API Key**.
+- **Many games at once.** If you're adding a large library, the cover tools can fetch covers in bulk.
+  See your platform's setup guide.
 
 ## Updating
 
-Every time SteamDeck Jewels opens, it checks for a new release. If there is one, it asks: **Update Now**
-closes the app, installs the update and reopens it; **Not Now** leaves an Update button in the top bar.
-You can also use **Help → Check for Updates** at any time. Updates keep your games, drives, covers and
-API key.
+Every time SteamDeck Jewels opens, it checks for a new version. If there is one, it asks: **Update Now**
+closes the app, installs the update and reopens it; **Not Now** leaves an **Update** button in the top
+bar for later. You can also use **Help → Check for Updates** at any time. Updates keep your games,
+drives, covers and API key.
 
-If the app ever won't start, run setup again from the download (or the repair menu in the installed
-folder) to check and repair it.
+## Troubleshooting
 
-## Building from source
+- **Windows says "Windows protected your PC" when I run setup.** That's Windows SmartScreen being
+  cautious about downloaded scripts. Click **More info → Run anyway**.
+- **"Python 3 was not found."** Install Python from [python.org](https://www.python.org/downloads/)
+  (Windows: keep **py launcher** ticked), then run setup again.
+- **A game says Offline.** Insert its card, wait for your computer or Deck to show it, then use
+  **Manage ▾ → Rescan Drives**. The card's volume name must match the one you gave the jewel drive.
+- **The app won't open after an update or a crash.** Run setup again from the ZIP you downloaded. It
+  repairs the installation without touching your library.
+- **On Linux the app installs but doesn't open.** Make sure the library from step 1 of the Linux install
+  is installed.
 
-```text
-assets/        gem icons, placeholder cover (your covers are git-ignored)
-data/          your drives.json and games.json, created on first run (git-ignored)
-docs/          setup guides and the release checklist
-platform/      setup, run, build and repair scripts (windows/, steamos/ for SteamOS and Linux)
-src/           the application (steamdeck_jewels package, Python + PySide6)
-tools/         cover tools, gem generator, release packager, updater
-```
+## Backing up and uninstalling
 
-- **Run without installing:** `run-windows.bat`, `bash run-linux.sh` or `bash run-steamos.sh`.
-- **Standalone build (PyInstaller):** `build-windows.bat` or `bash build-linux.sh`. Output goes to
-  `dist/SteamDeckJewels/`.
-- **Release ZIPs:** `python tools/package_release.py` writes the Windows, SteamOS and Linux ZIPs to
-  `release/`.
-- **Publishing a release:** bump the version in `src/steamdeck_jewels/__init__.py` and `pyproject.toml`,
-  then push a tag such as `v0.3.1`. The Release workflow builds all three ZIPs and publishes them on the
-  Releases page, and installed copies offer the update the next time they open. The repository the app
-  checks is `GITHUB_REPO` in `src/steamdeck_jewels/updater.py`.
+Your library lives in the app's folder:
 
-Before a release, run through [docs/CHECKLIST.md](docs/CHECKLIST.md).
+- **Windows:** `%LOCALAPPDATA%\SteamDeckJewels` (paste that into File Explorer's address bar)
+- **Steam Deck and Linux:** `~/Applications/SteamDeckJewels`
+
+To **back up** your library, copy the `data` and `assets/covers` folders from there.
+
+To **uninstall**, delete that folder and the SteamDeck Jewels shortcut. On Steam Deck and Linux, also
+delete `~/.local/share/applications/SteamDeckJewels.desktop`. This removes your library too, so back it
+up first if you want to keep it.
 
 ## Privacy
 
-Releases start with an empty library. Your drives, games, launch paths, covers and API key stay on your
-device. `.gitignore` keeps them out of the repository and the release packager never includes them. The
-only network requests are Steam/SteamGridDB cover lookups you start, and the update check against this
-repository's GitHub Releases.
+SteamDeck Jewels starts with an empty library and stores everything on your device. It only goes online
+to look up covers when you ask it to, and to check this page for new versions.
 
-## License
+## License and credits
 
-MIT. See [LICENSE](LICENSE).
+MIT licensed. See [LICENSE](LICENSE).
 
 SteamDeck Jewels is a fan-made project and isn't affiliated with or endorsed by Valve. Steam and Steam
 Deck are trademarks of Valve Corporation.

@@ -22,7 +22,3 @@ If the app won't start, double-click `setup-windows.bat` again (from the downloa
 update from GitHub or a downloaded ZIP, and repair the Python environment and shortcuts.
 
 No command window stays open while the app runs; one appears only while setup or repair is working.
-
-## For developers
-
-Building from source and running without installing are covered in [DEVELOPING.md](DEVELOPING.md).

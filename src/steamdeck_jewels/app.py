@@ -1379,8 +1379,7 @@ class JewelLibrary(QMainWindow):
             "1. Run bash setup-steamos.sh in Desktop Mode.\n"
             "2. Launch the new Desktop shortcut.\n"
             "3. Add the installed run.sh to Steam for Gaming Mode.\n\n"
-            f"Current library folder:\n{PROJECT_ROOT}\n\n"
-            "See docs/CHECKLIST.md for the complete checklist."
+            f"Current library folder:\n{PROJECT_ROOT}"
         )
 
     def grid_columns(self):
