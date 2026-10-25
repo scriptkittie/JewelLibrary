@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QLineEdit, QPushButton, QScrollArea, QFrame, QMessageBox, QComboBox,
     QInputDialog, QDialog, QDialogButtonBox, QFileDialog, QFormLayout, QCheckBox,
-    QMenu, QScroller, QListWidget, QListWidgetItem, QSizePolicy
+    QMenu, QScroller, QListWidget, QListWidgetItem, QSizePolicy, QProgressDialog
 )
 
 try:
@@ -17,17 +17,35 @@ try:
 except ImportError:  # run as a plain script (PyInstaller entry point)
     import updater
 
-if getattr(sys, "frozen", False):
-    executable_root = Path(sys.executable).resolve().parent
-    bundled_root = Path(getattr(sys, "_MEIPASS", executable_root))
-    # Installed copies keep writable user data beside the executable. A freshly
-    # built preview falls back to PyInstaller's bundled data directory.
-    PROJECT_ROOT = executable_root if (executable_root / "data").is_dir() else bundled_root
+FROZEN = getattr(sys, "frozen", False)  # running from the Windows installer or the AppImage
+
+
+def user_data_dir():
+    """Where an installed build keeps the library (drives, games, covers, API key)."""
+    override = os.environ.get("SDJ_HOME", "").strip()
+    if override:
+        return Path(override)
+    if os.name == "nt":
+        # The same folder older script-based installs used, so existing libraries carry over.
+        local = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+        return Path(local) / "SteamDeckJewels"
+    base = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+    return Path(base) / "SteamDeckJewels"
+
+
+if FROZEN:
+    # Program files (gem icons, placeholder) are bundled read-only inside the app;
+    # the library lives in the per-user data folder and survives updates and reinstalls.
+    RESOURCES = Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
+    USER_HOME = user_data_dir()
 else:
-    PROJECT_ROOT = Path(__file__).resolve().parents[2]
-BASE = PROJECT_ROOT
-DATA = PROJECT_ROOT / "data"
-ASSETS = PROJECT_ROOT / "assets"
+    # Running from source or an older script-based install: everything in one folder.
+    RESOURCES = USER_HOME = Path(__file__).resolve().parents[2]
+DATA = USER_HOME / "data"
+COVERS = USER_HOME / "assets" / "covers"
+JEWELS = RESOURCES / "assets" / "jewels"
+PLACEHOLDER_COVER = RESOURCES / "assets" / "covers" / "_placeholder.svg"
+SECRETS = USER_HOME / ".secrets"
 GAMES_FILE = DATA / "games.json"
 DRIVES_FILE = DATA / "drives.json"
 
@@ -39,9 +57,26 @@ def save_json(path, value):
     temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
 
+def migrate_legacy_library():
+    """Copy a library from an older Linux/SteamOS script install into the new data folder."""
+    if not FROZEN or os.name == "nt" or GAMES_FILE.exists():
+        return
+    legacy = Path.home() / "Applications" / "SteamDeckJewels"
+    if not (legacy / "data" / "games.json").is_file():
+        return
+    DATA.mkdir(parents=True, exist_ok=True)
+    for name in ("games.json", "drives.json"):
+        if (legacy / "data" / name).is_file():
+            shutil.copy2(legacy / "data" / name, DATA / name)
+    for folder, target in ((legacy / "assets" / "covers", COVERS), (legacy / ".secrets", SECRETS)):
+        if folder.is_dir():
+            shutil.copytree(folder, target, dirs_exist_ok=True)
+
 def ensure_data_files():
     """Create empty library files on first run so a fresh install or build always starts."""
+    migrate_legacy_library()
     DATA.mkdir(parents=True, exist_ok=True)
+    COVERS.mkdir(parents=True, exist_ok=True)
     for path, empty in ((DRIVES_FILE, {}), (GAMES_FILE, [])):
         if not path.is_file():
             save_json(path, empty)
@@ -54,7 +89,7 @@ def cover_folder_name(title):
 
 def cover_directory(game):
     """Return the canonical Jewel/[NSFW]/Game cover directory."""
-    root = ASSETS / "covers" / game["drive"]
+    root = COVERS / game["drive"]
     if game.get("nsfw"):
         root = root / "NSFW"
     return root / cover_folder_name(game["title"])
@@ -65,7 +100,7 @@ def cover_directories(game):
     folders = [canonical]
     search_roots = [canonical.parent]
     if game.get("nsfw"):
-        search_roots.append(ASSETS / "covers" / game["drive"])
+        search_roots.append(COVERS / game["drive"])
     match_key = re.sub(r"[^a-z0-9]+", "", game["title"].casefold())
     for gem_folder in search_roots:
         if not gem_folder.is_dir():
@@ -79,7 +114,7 @@ def cover_directories(game):
 def find_cover(game):
     """Prefer an explicit cover, then the first image in the title's cover folder."""
     if game.get("cover"):
-        return BASE / game["cover"]
+        return USER_HOME / game["cover"]
     supported = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif", ".svg"}
     for folder in cover_directories(game):
         if folder.is_dir():
@@ -89,7 +124,7 @@ def find_cover(game):
             )
             if images:
                 return images[0]
-    return ASSETS / "covers" / "_placeholder.svg"
+    return PLACEHOLDER_COVER
 
 def _download_bytes(url, headers=None):
     request = urllib.request.Request(
@@ -104,7 +139,7 @@ def _validated_cover(data):
     return not image.isNull() and (image.width(), image.height()) == (600, 900)
 
 def _steamgriddb_cover(appid):
-    key_file = PROJECT_ROOT / ".secrets" / "steamgriddb.key"
+    key_file = SECRETS / "steamgriddb.key"
     key = os.environ.get("STEAMGRIDDB_API_KEY", "").strip()
     if not key and key_file.is_file():
         key = key_file.read_text(encoding="utf-8").strip()
@@ -516,7 +551,7 @@ class GameCard(QFrame):
         row = QHBoxLayout()
         jewel = QLabel()
         jewel.setFixedSize(22,22)
-        jp = QPixmap(str(BASE / drive_info["jewel"]))
+        jp = QPixmap(str(RESOURCES / drive_info["jewel"]))
         jewel.setPixmap(jp.scaled(22,22,Qt.KeepAspectRatio,Qt.SmoothTransformation))
         row.addWidget(jewel)
 
@@ -642,8 +677,10 @@ class DriveStrip(QScrollArea):
         event.accept()
 
 class UpdateRelay(QObject):
-    """Carries the background update check's result back to the UI thread."""
+    """Carries update-check and download results from worker threads back to the UI thread."""
     checked = Signal(object)
+    progress = Signal(int, int)
+    finished = Signal(object)
 
 NSFW_LABELS = {"hide": "NSFW: Hidden", "show": "NSFW: Shown", "only": "NSFW: Only"}
 NSFW_CYCLE = {"hide": "show", "show": "only", "only": "hide"}
@@ -726,9 +763,6 @@ class JewelLibrary(QMainWindow):
         outer.addLayout(top)
 
         help_menu = self.menuBar().addMenu("Help")
-        checklist_action = QAction("Setup Checklist", self)
-        checklist_action.triggered.connect(self.show_setup_checklist)
-        help_menu.addAction(checklist_action)
         folder_action = QAction("Open SDJ Folder", self)
         folder_action.triggered.connect(self.open_library_folder)
         help_menu.addAction(folder_action)
@@ -906,7 +940,7 @@ class JewelLibrary(QMainWindow):
         if not accepted or not label:
             return
 
-        jewel_files = sorted((ASSETS / "jewels").glob("*.svg"), key=lambda path: path.stem)
+        jewel_files = sorted(JEWELS.glob("*.svg"), key=lambda path: path.stem)
         jewel_names = [path.stem.replace("-", " ").title() for path in jewel_files]
         preferred = name.replace("-", " ").title()
         default_index = jewel_names.index(preferred) if preferred in jewel_names else 0
@@ -928,8 +962,8 @@ class JewelLibrary(QMainWindow):
         }
         try:
             # Reuse an existing folder if one was prepared before adding the drive.
-            (ASSETS / "covers" / name).mkdir(parents=True, exist_ok=True)
-            (ASSETS / "covers" / name / "NSFW").mkdir(parents=True, exist_ok=True)
+            (COVERS / name).mkdir(parents=True, exist_ok=True)
+            (COVERS / name / "NSFW").mkdir(parents=True, exist_ok=True)
             save_json(DRIVES_FILE, self.drives)
         except Exception as error:
             self.drives.pop(name, None)
@@ -946,7 +980,7 @@ class JewelLibrary(QMainWindow):
         self.render()
         QMessageBox.information(
             self, "Jewel drive added",
-            f"Added {name}.\n\nCover folder:\n{ASSETS / 'covers' / name}\n\n"
+            f"Added {name}.\n\nCover folder:\n{COVERS / name}\n\n"
             f"Expected SD card label: {label}"
         )
 
@@ -1223,9 +1257,9 @@ class JewelLibrary(QMainWindow):
     def open_library_folder(self):
         try:
             if os.name == "nt":
-                os.startfile(str(PROJECT_ROOT))
+                os.startfile(str(USER_HOME))
             else:
-                subprocess.Popen(["xdg-open", str(PROJECT_ROOT)])
+                subprocess.Popen(["xdg-open", str(USER_HOME)])
         except Exception as error:
             QMessageBox.warning(self, "Could not open folder", str(error))
 
@@ -1238,7 +1272,7 @@ class JewelLibrary(QMainWindow):
             "2. Open your account Preferences, then choose API.\n"
             "3. Click Create API Key and copy the key.\n"
             "4. Continue here and paste it into the next box.\n\n"
-            "The key is stored only inside your local SDJ folder and is never included in update ZIPs."
+            "The key is stored only on this device, in your library folder, and updates keep it."
         )
         key, accepted = QInputDialog.getText(
             self, "Save SteamGridDB API Key", "Paste your API key:", QLineEdit.Password
@@ -1250,7 +1284,7 @@ class JewelLibrary(QMainWindow):
             QMessageBox.warning(self, "No Key Entered", "Nothing was saved.")
             return
         try:
-            key_folder = PROJECT_ROOT / ".secrets"
+            key_folder = SECRETS
             key_folder.mkdir(parents=True, exist_ok=True)
             key_file = key_folder / "steamgriddb.key"
             key_file.write_text(key + "\n", encoding="utf-8")
@@ -1262,18 +1296,19 @@ class JewelLibrary(QMainWindow):
         QMessageBox.information(self, "API Key Saved", "SteamGridDB cover lookup is ready.")
 
     def show_update_result(self):
-        status = updater.take_status(PROJECT_ROOT)
-        if not status:
+        result = updater.take_result(USER_HOME)
+        if not result:
             return
-        if status.get("ok"):
-            QMessageBox.information(self, "Update complete", status.get("message", "Updated."))
+        ok, message = result
+        if ok:
+            QMessageBox.information(self, "Update complete", message)
         else:
-            QMessageBox.warning(self, "Update didn't finish", status.get("message", "The update failed."))
+            QMessageBox.warning(self, "Update didn't finish", message)
 
     def start_background_update_check(self):
         def work():
             try:
-                result = updater.check(PROJECT_ROOT)
+                result = updater.check()
             except Exception:
                 result = None  # offline, not configured, dev copy: stay quiet
             self.update_relay.checked.emit(result)
@@ -1297,7 +1332,7 @@ class JewelLibrary(QMainWindow):
     def check_for_updates(self):
         QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
-            current, tag, newer = updater.check(PROJECT_ROOT)
+            current, tag, newer = updater.check()
         except Exception as error:
             QApplication.restoreOverrideCursor()
             QMessageBox.information(self, "Check for Updates", str(error))
@@ -1311,7 +1346,7 @@ class JewelLibrary(QMainWindow):
             )
 
     def offer_update(self, tag):
-        current = updater.installed_version(PROJECT_ROOT)
+        current = updater.current_version()
         prompt = QMessageBox(self)
         prompt.setWindowTitle("Update available")
         prompt.setIcon(QMessageBox.Information)
@@ -1327,17 +1362,45 @@ class JewelLibrary(QMainWindow):
         prompt.exec()
         if prompt.clickedButton() is not update_now:
             return
-        try:
-            updater.start_background_update(PROJECT_ROOT)
-        except Exception as error:
-            QMessageBox.warning(self, "Update", f"Couldn't start the update: {error}")
-            return
-        QApplication.quit()
+        self.run_update()
+
+    def run_update(self):
+        """Download the update with a progress bar, then hand over to it and close."""
+        progress = QProgressDialog("Downloading the update…", "", 0, 100, self)
+        progress.setWindowTitle("Updating SteamDeck Jewels")
+        progress.setCancelButton(None)
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setMinimumDuration(0)
+        progress.setValue(0)
+
+        def on_progress(done, total):
+            if total:
+                progress.setValue(int(done * 100 / total))
+
+        def on_finished(error):
+            progress.close()
+            if error is not None:
+                QMessageBox.warning(self, "Update", str(error))
+                return
+            QApplication.quit()  # the new version starts by itself
+
+        self.update_relay.progress.connect(on_progress)
+        self.update_relay.finished.connect(on_finished)
+
+        def work():
+            try:
+                updater.install(USER_HOME, lambda done, total: self.update_relay.progress.emit(done, total))
+                error = None
+            except Exception as exc:  # report every failure in the dialog
+                error = exc if isinstance(exc, updater.UpdateError) else updater.UpdateError(
+                    f"The update failed: {exc}")
+            self.update_relay.finished.emit(error)
+        threading.Thread(target=work, daemon=True).start()
 
     def show_about(self):
         QMessageBox.information(
             self, "About SteamDeck Jewels",
-            f"SteamDeck Jewels {updater.installed_version(PROJECT_ROOT)}\n\n"
+            f"SteamDeck Jewels {updater.current_version()}\n\n"
             "A controller-friendly library for games spread across SD cards.\n"
             "MIT License."
             + (f"\n\nhttps://github.com/{updater.configured_repo()}" if updater.configured_repo() else "")
@@ -1364,22 +1427,6 @@ class JewelLibrary(QMainWindow):
             "3. Choose + Add Game and select that jewel drive.\n"
             "4. Let SDJ search Steam for the cover, enter a Steam AppID, or choose your own image.\n\n"
             "SteamGridDB is optional. Set it up later from Help → Set Up SteamGridDB API Key."
-        )
-
-    def show_setup_checklist(self):
-        QMessageBox.information(
-            self,
-            "SteamDeck Jewels Setup Checklist",
-            "WINDOWS\n"
-            "1. Run setup-windows.bat.\n"
-            "2. Choose Install / Update.\n"
-            "3. Launch the Desktop shortcut.\n"
-            "4. Check search, jewel filters, covers, and Manage ▾ → Rescan Drives.\n\n"
-            "STEAMOS\n"
-            "1. Run bash setup-steamos.sh in Desktop Mode.\n"
-            "2. Launch the new Desktop shortcut.\n"
-            "3. Add the installed run.sh to Steam for Gaming Mode.\n\n"
-            f"Current library folder:\n{PROJECT_ROOT}"
         )
 
     def grid_columns(self):
@@ -1518,9 +1565,38 @@ class JewelLibrary(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Launch failed", str(e))
 
+def running_on_steamos():
+    try:
+        return re.search(r'^ID="?steamos', Path("/etc/os-release").read_text(encoding="utf-8"), re.M) is not None
+    except OSError:
+        return False
+
+def install_desktop_entry():
+    """Give the AppImage a menu entry and icon, pointing at wherever the file is now."""
+    try:
+        appimage = os.environ["APPIMAGE"]
+        icon = USER_HOME / "steamdeck-jewels.svg"
+        USER_HOME.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(JEWELS / "steamdeck-jewels-rainbow.svg", icon)
+        applications = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share") / "applications"
+        applications.mkdir(parents=True, exist_ok=True)
+        (applications / "SteamDeckJewels.desktop").write_text(
+            "[Desktop Entry]\n"
+            "Type=Application\n"
+            "Name=SteamDeck Jewels\n"
+            "Comment=Controller-friendly game library for SD-card collections\n"
+            f'Exec="{appimage}"\n'
+            f"Icon={icon}\n"
+            "Terminal=false\n"
+            "Categories=Game;\n",
+            encoding="utf-8",
+        )
+    except Exception:
+        pass  # a missing menu entry must never stop the app from starting
+
 def app_icon():
     """The rainbow jewel: the multi-size .ico on Windows, the SVG elsewhere."""
-    jewels = ASSETS / "jewels"
+    jewels = JEWELS
     ico = jewels / "steamdeck-jewels-rainbow.ico"
     if os.name == "nt" and ico.is_file():
         return QIcon(str(ico))
@@ -1529,7 +1605,9 @@ def app_icon():
 def main():
     parser = argparse.ArgumentParser(description="Jewel drive game library")
     parser.add_argument("--windowed", action="store_true", help="run in a resizable window")
-    args = parser.parse_args()
+    parser.add_argument("--fullscreen", action="store_true", help="run fullscreen")
+    parser.add_argument("--self-test", action="store_true", help="check the build starts, then exit")
+    args, _ = parser.parse_known_args()  # ignore extra arguments added by launchers
     if os.name == "nt":
         # Without its own app ID, Windows groups the window under pythonw.exe and the
         # taskbar shows the Python logo instead of the jewel.
@@ -1543,7 +1621,18 @@ def main():
     # Matches SteamDeckJewels.desktop so SteamOS/KDE shows the jewel for this window too.
     app.setDesktopFileName("SteamDeckJewels")
     app.setWindowIcon(app_icon())
-    win = JewelLibrary(windowed=args.windowed)
+    if args.self_test:
+        # Used by the release build: Qt loads, bundled icons render, then exit without a window.
+        problems = [str(p) for p in (JEWELS / "steamdeck-jewels-rainbow.svg", PLACEHOLDER_COVER) if not p.is_file()]
+        if QPixmap(str(JEWELS / "ruby.svg")).isNull():
+            problems.append("SVG icons can't be drawn (Qt SVG support missing)")
+        print("self-test:", "OK " + updater.current_version() if not problems else "FAILED " + "; ".join(problems))
+        return 1 if problems else 0
+    # Fullscreen on the Steam Deck (Desktop and Gaming Mode); a normal window everywhere else.
+    fullscreen = args.fullscreen or (running_on_steamos() and not args.windowed)
+    if getattr(sys, "frozen", False) and os.environ.get("APPIMAGE"):
+        install_desktop_entry()
+    win = JewelLibrary(windowed=not fullscreen)
     win.show()
     return app.exec()
 

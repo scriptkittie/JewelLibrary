@@ -3,12 +3,9 @@
 *.key
 
 # Your personal library: created by the app on first run, never committed
-data/*.json
+data/
 assets/covers/*
 !assets/covers/_placeholder.svg
-
-# Generated cover reports
-reports/*.txt
 
 # Python environments and caches
 .venv/
@@ -25,6 +22,7 @@ build/
 dist/
 release/
 *.zip
+*.AppImage
 
 # OS and editor files
 .DS_Store

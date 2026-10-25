@@ -43,10 +43,10 @@ SteamGridDB can supply artwork when Steam has no suitable 600×900 cover.
 3. Choose **Create API Key** and copy the key.
 4. In SDJ, open **Help → Set Up SteamGridDB API Key** and paste it.
 
-SDJ stores the key in `.secrets/steamgriddb.key` inside the installed SDJ folder. Updates keep it, and
-release ZIPs never include it. Never post or share the key.
+SDJ keeps the key only on your device, in your library folder. Updates keep it. Never post or share the key.
 
 ## What "Open SDJ Folder" means
 
-**Manage ▾ → Open SDJ Folder** opens the installed SDJ folder: application files, your library data
-(`data/`), covers (`assets/covers/<Jewel>/<Game>/`), reports and local settings.
+**Manage ▾ → Open SDJ Folder** opens your library folder: your drives and games (`data/`), your covers
+(`assets/covers/<Jewel>/<Game>/`) and your settings. It's separate from the app itself, so updating or
+reinstalling never touches it. Copy this folder to back up your library.
